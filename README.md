@@ -1,13 +1,11 @@
 # 🎀 Pretty Pennies
 
-A cute, private, local-first money diary. Blues, yellows, and whites — soft and coquette.
-
-Built with **Vite + React + TypeScript**. No cloud, no accounts, no paid third parties (no Supabase, no Claude). Everything lives on your own device.
+Built with **Vite + React + TypeScript**. 
 
 ## Privacy
 
 - On first launch you set a **PIN**.
-- Your whole ledger is **encrypted at rest** (AES-GCM, key derived from your PIN with PBKDF2) and stored in the browser's **IndexedDB** — all via the built-in Web Crypto API.
+- Your whole ledger is **encrypted at rest** (AES-GCM, key derived from your PIN with PBKDF2) and stored in the browser's **IndexedDB** all via the built-in Web Crypto API.
 - The PIN is never stored and never leaves the device. Without it, no one can read your money info.
 - "Lock diary" clears the key from memory; the data on disk stays encrypted.
 
