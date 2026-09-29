@@ -1,5 +1,5 @@
 # 🎀 Pretty Pennies
-<img src="thumbnail" alt="Project Screenshot" width="400" />
+<img src="thumbnail.png" alt="Project Screenshot" width="400" />
 Built with **Vite + React + TypeScript**. 
 
 ## Privacy
