@@ -510,7 +510,15 @@ input.control::placeholder { color: var(--muted); }
   border: 1px solid rgba(255, 255, 255, 0.7);
 }
 .lock-bow { margin-bottom: 4px; }
-.lock-logo { width: 90px; height: 90px; object-fit: contain; }
+.lock-logo 
+{
+  width: 180px;
+  height: auto;
+  object-fit: contain;
+  flex: none;
+  margin: 0 auto;
+}
+
 .lock-card h1 {
   font-family: var(--font-display);
   font-size: 27px;
@@ -959,3 +967,177 @@ input.control::placeholder { color: var(--muted); }
   border-radius: 100px;
   padding: 4px 12px;
 }
+
+/* ==========================================================================
+   Dashboard two-column layout
+   ========================================================================== */
+.dash-layout {
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: 20px;
+  align-items: start;
+}
+@media (max-width: 1060px) { .dash-layout { grid-template-columns: 1fr; } }
+@media (max-width: 1060px) { .dash-cal-panel { display: none; } }
+
+/* ---------- Summary cards (flat, small, no blobs) ---------- */
+.dash-summary-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+@media (max-width: 700px) { .dash-summary-cards { grid-template-columns: repeat(2, 1fr); } }
+.summary-card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 13px 14px 11px;
+}
+.sc-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 7px;
+}
+.sc-value {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.sc-value.pos { color: var(--income); }
+.sc-value.neg { color: var(--expense); }
+
+/* ---------- Account cards (bigger, yellow tint, 2×2 grid) ---------- */
+.dash-acct-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+@media (max-width: 700px) { .dash-acct-grid { grid-template-columns: repeat(2, 1fr); } }
+.dash-acct-card {
+  border-radius: 18px;
+  padding: 16px 16px 14px;
+  border: 1px solid var(--line-strong);
+}
+.dac-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.dac-icon {
+  width: 28px; height: 28px;
+  background: rgba(255,255,255,0.65);
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--yellow-700);
+}
+.dac-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--yellow-700);
+}
+.dac-bal {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--yellow-700);
+}
+.dac-bal.neg { color: var(--expense); }
+
+/* ---------- Mini calendar panel ---------- */
+.dash-cal-panel {
+  position: sticky;
+  top: 24px;
+}
+.mini-cal {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 14px 14px 12px;
+  box-shadow: var(--shadow-card);
+}
+.mini-cal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.mini-cal-title {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--yellow-700);
+}
+.mini-nav {
+  border: none;
+  background: transparent;
+  font-size: 18px;
+  color: var(--muted);
+  width: 26px; height: 26px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+.mini-nav:hover { background: var(--yellow-50); color: var(--yellow-700); }
+
+.mini-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+.mini-wday {
+  text-align: center;
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--muted);
+  padding-bottom: 4px;
+}
+.mini-cell {
+  aspect-ratio: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 7px;
+  cursor: default;
+}
+.mini-cell.empty { background: transparent; }
+.mini-num {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1;
+}
+.mini-cell.today .mini-num {
+  background: var(--yellow-500);
+  color: var(--white);
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.mini-cell.payday { background: var(--yellow-50); }
+.mini-dots {
+  display: flex;
+  gap: 2px;
+  margin-top: 2px;
+}
+.mini-dot {
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--yellow-500);
+  display: inline-block;
+}
+.mini-dot.note { background: var(--transfer); }

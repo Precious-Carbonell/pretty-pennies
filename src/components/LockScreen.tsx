@@ -1,7 +1,6 @@
 import { useState, type FormEvent } from "react";
 import lockBg from "@/assets/lockbg.jpg";
 import logoUrl from "@/assets/logo.png";
-import { Icon } from "./Icon";
 import { FallingLeaves } from "./FallingLeaves";
 
 interface Props {
@@ -108,7 +107,7 @@ export function LockScreen({ mode, onSetup, onUnlock, onReset }: Props) {
     <div className="lock-screen" style={{ backgroundImage: `url(${lockBg})` }}>
       <FallingLeaves count={16} />
       <form className="lock-card" onSubmit={handleSubmit}>
-        <div className="lock-bow"><img src={logoUrl} alt="Pretty Pennies" className="lock-logo" /></div>
+        <div className="lock-logo"><img src={logoUrl} alt="Pretty Pennies" className="lock-logo" /></div>
         <h1>Pretty Pennies</h1>
         <p>{isSetup ? "Create a private PIN for your money diary." : "Enter your PIN to peek inside."}</p>
 
@@ -137,8 +136,8 @@ export function LockScreen({ mode, onSetup, onUnlock, onReset }: Props) {
 
         <div className="lock-hint">
           {isSetup
-            ? "Your PIN never leaves this device and isn't stored anywhere. It's the only key — keep it safe."
-            : "Everything stays encrypted on this device. No accounts, no cloud, no one else can read it."}
+            ? "Your PIN never leaves this device and isn't stored anywhere."
+            : "Everything stays encrypted on this device."}
         </div>
 
         {!isSetup && (

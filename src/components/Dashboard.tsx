@@ -13,6 +13,7 @@ import {
 import { Icon, type IconName } from "./Icon";
 import { accountIcon } from "@/lib/icons";
 import { customRange, monthRange, txInRange, yearRange } from "@/lib/reports";
+import { MiniCalendar } from "./MiniCalendar";
 
 interface Props {
   data: LedgerData;
@@ -96,146 +97,127 @@ export function Dashboard({ data, filters, onFilters, onEdit, onDelete }: Props)
         <span className="pill"><span className="dot" /> saved on this device</span>
       </div>
 
-      <div className="card-filter">
-        <span className="card-filter-label">Summary for</span>
-        <div className="seg">
-          {(["all", "month", "year", "custom"] as CardScope[]).map((s) => (
-            <button key={s} className={cardScope === s ? "active" : ""} onClick={() => setCardScope(s)}>
-              {s === "all" ? "All time" : s === "month" ? "Month" : s === "year" ? "Year" : "Custom"}
-            </button>
-          ))}
-        </div>
-        {cardScope === "month" && (
-          <>
-            <select className="control" value={cardMonth} onChange={(e) => setCardMonth(Number(e.target.value))}>
-              {MONTH_NAMES.map((m, i) => (
-                <option key={i} value={i}>{m}</option>
+      {/* two-column layout: main content left, mini calendar right */}
+      <div className="dash-layout">
+        <div className="dash-main">
+          <div className="card-filter">
+            <span className="card-filter-label">Summary for</span>
+            <div className="seg">
+              {(["all", "month", "year", "custom"] as CardScope[]).map((s) => (
+                <button key={s} className={cardScope === s ? "active" : ""} onClick={() => setCardScope(s)}>
+                  {s === "all" ? "All time" : s === "month" ? "Month" : s === "year" ? "Year" : "Custom"}
+                </button>
               ))}
-            </select>
-            <select className="control" value={cardYear} onChange={(e) => setCardYear(Number(e.target.value))}>
-              {yearChoices(data).map((y) => (
-                <option key={y} value={y}>{y}</option>
-              ))}
-            </select>
-          </>
-        )}
-        {cardScope === "year" && (
-          <select className="control" value={cardYear} onChange={(e) => setCardYear(Number(e.target.value))}>
-            {yearChoices(data).map((y) => (
-              <option key={y} value={y}>{y}</option>
-            ))}
-          </select>
-        )}
-        {cardScope === "custom" && (
-          <>
-            <input className="control" type="date" value={cardStart} onChange={(e) => setCardStart(e.target.value)} />
-            <span className="card-filter-label">to</span>
-            <input className="control" type="date" value={cardEnd} onChange={(e) => setCardEnd(e.target.value)} />
-          </>
-        )}
-        <span className="card-filter-range">{cardLabel}</span>
-      </div>
-
-      <div className="cards">
-        <div className="card total">
-          <div className="label"><Icon name="heart" /> Net</div>
-          <div className={"value " + (totals.net < 0 ? "neg" : "pos")}>{signedMoney(totals.net)}</div>
-        </div>
-        <div className="card in">
-          <div className="label"><Icon name="arrow-down" /> Money in</div>
-          <div className="value pos">{fmtMoney(totals.income)}</div>
-        </div>
-        <div className="card out">
-          <div className="label"><Icon name="arrow-up" /> Money out</div>
-          <div className="value neg">{fmtMoney(totals.expense)}</div>
-        </div>
-        <div className="card save">
-          <div className="label"><Icon name="wallet" /> Total balance</div>
-          <div className="value">{fmtMoney(totals.total)}</div>
-        </div>
-      </div>
-
-      <div className="accounts-strip">
-        {data.accounts.map((a) => (
-          <div key={a.id} className="acct-chip" style={{ background: a.color + "33" }}>
-            <div className="top">
-              <span className="emoji"><Icon name={accountIcon(a)} /></span>
-              <span className="name">{a.name}</span>
             </div>
-            <div className={"bal" + (balances[a.id] < 0 ? " neg" : "")}>{fmtMoney(balances[a.id] || 0)}</div>
+            {cardScope === "month" && (
+              <>
+                <select className="control" value={cardMonth} onChange={(e) => setCardMonth(Number(e.target.value))}>
+                  {MONTH_NAMES.map((m, i) => <option key={i} value={i}>{m}</option>)}
+                </select>
+                <select className="control" value={cardYear} onChange={(e) => setCardYear(Number(e.target.value))}>
+                  {yearChoices(data).map((y) => <option key={y} value={y}>{y}</option>)}
+                </select>
+              </>
+            )}
+            {cardScope === "year" && (
+              <select className="control" value={cardYear} onChange={(e) => setCardYear(Number(e.target.value))}>
+                {yearChoices(data).map((y) => <option key={y} value={y}>{y}</option>)}
+              </select>
+            )}
+            {cardScope === "custom" && (
+              <>
+                <input className="control" type="date" value={cardStart} onChange={(e) => setCardStart(e.target.value)} />
+                <span className="card-filter-label">to</span>
+                <input className="control" type="date" value={cardEnd} onChange={(e) => setCardEnd(e.target.value)} />
+              </>
+            )}
+            <span className="card-filter-range">{cardLabel}</span>
           </div>
-        ))}
-      </div>
 
-      <div className="filters">
-        <div className="seg">
-          {PERIODS.map((p) => (
-            <button
-              key={p.key}
-              className={filters.period === p.key ? "active" : ""}
-              onClick={() => onFilters({ ...filters, period: p.key })}
-            >
-              {p.label}
-            </button>
-          ))}
-        </div>
-        <div className="seg">
-          {TYPES.map((t) => (
-            <button
-              key={t.key}
-              className={filters.type === t.key ? "active" : ""}
-              onClick={() => onFilters({ ...filters, type: t.key })}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
-        <select
-          className="control"
-          value={filters.account}
-          onChange={(e) => onFilters({ ...filters, account: e.target.value })}
-        >
-          <option value="all">All accounts</option>
-          {data.accounts.map((a) => (
-            <option key={a.id} value={a.id}>{a.name}</option>
-          ))}
-        </select>
-        <select
-          className="control"
-          value={filters.category}
-          onChange={(e) => onFilters({ ...filters, category: e.target.value })}
-        >
-          <option value="all">All categories</option>
-          {usedCategories.map((c) => (
-            <option key={c} value={c}>{c}</option>
-          ))}
-        </select>
-        <input
-          className="control"
-          type="text"
-          placeholder="search notes…"
-          value={filters.search}
-          onChange={(e) => onFilters({ ...filters, search: e.target.value })}
-        />
-      </div>
+          {/* summary cards — flat, small, 4-column */}
+          <div className="dash-summary-cards">
+            <div className="summary-card">
+              <div className="sc-label"><Icon name="heart" size={13} /> Net this period</div>
+              <div className={"sc-value " + (totals.net < 0 ? "neg" : "pos")}>{signedMoney(totals.net)}</div>
+            </div>
+            <div className="summary-card">
+              <div className="sc-label"><Icon name="arrow-down" size={13} /> Money in</div>
+              <div className="sc-value pos">{fmtMoney(totals.income)}</div>
+            </div>
+            <div className="summary-card">
+              <div className="sc-label"><Icon name="arrow-up" size={13} /> Money out</div>
+              <div className="sc-value neg">{fmtMoney(totals.expense)}</div>
+            </div>
+            <div className="summary-card">
+              <div className="sc-label"><Icon name="wallet" size={13} /> Total balance</div>
+              <div className="sc-value">{fmtMoney(totals.total)}</div>
+            </div>
+          </div>
 
-      <div className="list-head">
-        <h2>Entries</h2>
-        <div className="list-total">{list.length} {list.length === 1 ? "entry" : "entries"}</div>
-      </div>
+          {/* account cards — bigger, yellow tinted grid */}
+          <div className="dash-acct-grid">
+            {data.accounts.map((a) => (
+              <div key={a.id} className="dash-acct-card" style={{ background: a.color + "44" }}>
+                <div className="dac-top">
+                  <span className="dac-icon"><Icon name={accountIcon(a)} size={16} /></span>
+                  <span className="dac-name">{a.name}</span>
+                </div>
+                <div className={"dac-bal" + (balances[a.id] < 0 ? " neg" : "")}>{fmtMoney(balances[a.id] || 0)}</div>
+              </div>
+            ))}
+          </div>
 
-      {list.length === 0 ? (
-        <div className="empty">
-          <div className="big">Nothing here yet</div>
-          Tap a button on the left to log your first pretty penny.
+          {/* transaction filters + list */}
+          <div className="filters">
+            <div className="seg">
+              {PERIODS.map((p) => (
+                <button key={p.key} className={filters.period === p.key ? "active" : ""} onClick={() => onFilters({ ...filters, period: p.key })}>
+                  {p.label}
+                </button>
+              ))}
+            </div>
+            <div className="seg">
+              {TYPES.map((t) => (
+                <button key={t.key} className={filters.type === t.key ? "active" : ""} onClick={() => onFilters({ ...filters, type: t.key })}>
+                  {t.label}
+                </button>
+              ))}
+            </div>
+            <select className="control" value={filters.account} onChange={(e) => onFilters({ ...filters, account: e.target.value })}>
+              <option value="all">All accounts</option>
+              {data.accounts.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
+            </select>
+            <select className="control" value={filters.category} onChange={(e) => onFilters({ ...filters, category: e.target.value })}>
+              <option value="all">All categories</option>
+              {usedCategories.map((c) => <option key={c} value={c}>{c}</option>)}
+            </select>
+            <input className="control" type="text" placeholder="search notes…" value={filters.search} onChange={(e) => onFilters({ ...filters, search: e.target.value })} />
+          </div>
+
+          <div className="list-head">
+            <h2>Entries</h2>
+            <div className="list-total">{list.length} {list.length === 1 ? "entry" : "entries"}</div>
+          </div>
+
+          {list.length === 0 ? (
+            <div className="empty">
+              <div className="big">Nothing here yet</div>
+              Tap a button on the left to log your first pretty penny.
+            </div>
+          ) : (
+            <div className="ledger">
+              {list.map((t) => (
+                <TxRow key={t.id} tx={t} data={data} onEdit={onEdit} onDelete={onDelete} />
+              ))}
+            </div>
+          )}
         </div>
-      ) : (
-        <div className="ledger">
-          {list.map((t) => (
-            <TxRow key={t.id} tx={t} data={data} onEdit={onEdit} onDelete={onDelete} />
-          ))}
-        </div>
-      )}
+
+        {/* right: mini calendar panel */}
+        <aside className="dash-cal-panel">
+          <MiniCalendar events={data.events ?? []} dayNotes={data.dayNotes ?? []} />
+        </aside>
+      </div>
     </section>
   );
 }
