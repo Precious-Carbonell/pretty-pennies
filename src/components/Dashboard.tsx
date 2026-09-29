@@ -14,6 +14,9 @@ import { Icon, type IconName } from "./Icon";
 import { accountIcon } from "@/lib/icons";
 import { customRange, monthRange, txInRange, yearRange } from "@/lib/reports";
 import { MiniCalendar } from "./MiniCalendar";
+import sanrioGif from "@/assets/sanriogif.gif";
+import headImg from "@/assets/head.png";
+import { nextPayday } from "@/lib/calendar";
 
 interface Props {
   data: LedgerData;
@@ -86,6 +89,19 @@ export function Dashboard({ data, filters, onFilters, onEdit, onDelete }: Props)
   }, [data, cardScope, cardMonth, cardYear, cardStart, cardEnd]);
 
   const totals = computeTotals(data, cardList);
+
+  // Payday countdown (drives the heart widget)
+  const paydayInfo = useMemo(() => nextPayday(data.events ?? [], 40), [data.events]);
+
+  // Pagination
+  const PAGE_SIZE = 10;
+  const [page, setPage] = useState(1);
+  // Reset to page 1 whenever the filtered list changes
+  const listKey = list.length + filters.period + filters.type + filters.account + filters.category + filters.search;
+  useMemo(() => { setPage(1); }, [listKey]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const totalPages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
+  const paginated = list.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
     <section>
@@ -205,19 +221,81 @@ export function Dashboard({ data, filters, onFilters, onEdit, onDelete }: Props)
               Tap a button on the left to log your first pretty penny.
             </div>
           ) : (
-            <div className="ledger">
-              {list.map((t) => (
-                <TxRow key={t.id} tx={t} data={data} onEdit={onEdit} onDelete={onDelete} />
-              ))}
-            </div>
+            <>
+              <div className="ledger">
+                {paginated.map((t) => (
+                  <TxRow key={t.id} tx={t} data={data} onEdit={onEdit} onDelete={onDelete} />
+                ))}
+              </div>
+
+              {totalPages > 1 && (
+                <div className="pagination">
+                  <button
+                    className="page-btn"
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={page === 1}
+                    aria-label="Previous page"
+                  >
+                    ‹
+                  </button>
+
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter((p) => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
+                    .reduce<(number | "…")[]>((acc, p, idx, arr) => {
+                      if (idx > 0 && typeof arr[idx - 1] === "number" && (p as number) - (arr[idx - 1] as number) > 1) {
+                        acc.push("…");
+                      }
+                      acc.push(p);
+                      return acc;
+                    }, [])
+                    .map((p, i) =>
+                      p === "…" ? (
+                        <span key={"ellipsis-" + i} className="page-ellipsis">…</span>
+                      ) : (
+                        <button
+                          key={p}
+                          className={"page-btn" + (p === page ? " active" : "")}
+                          onClick={() => setPage(p as number)}
+                          aria-label={`Page ${p}`}
+                          aria-current={p === page ? "page" : undefined}
+                        >
+                          {p}
+                        </button>
+                      )
+                    )}
+
+                  <button
+                    className="page-btn"
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={page === totalPages}
+                    aria-label="Next page"
+                  >
+                    ›
+                  </button>
+
+                  <span className="page-info">
+                    {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, list.length)} of {list.length}
+                  </span>
+                </div>
+              )}
+            </>
           )}
         </div>
 
-        {/* right: mini calendar panel */}
+        {/* right: mini calendar + sanrio gif card + savings progress */}
         <aside className="dash-cal-panel">
           <MiniCalendar events={data.events ?? []} dayNotes={data.dayNotes ?? []} />
+          <div className="dash-gif-card">
+            <img src={sanrioGif} alt="" className="dash-gif" aria-hidden="true" />
+          </div>
+          <SavingsProgress total={totals.total} goal={100000} />
         </aside>
       </div>
+
+      {/* payday heart countdown — fixed lower-right */}
+      {paydayInfo !== null && (
+        <PaydayHeart days={paydayInfo.daysUntil} />
+      )}
     </section>
   );
 }
@@ -271,6 +349,60 @@ function TxRow({
         <button className="icon-btn delete" title="Delete" aria-label="Delete" onClick={() => onDelete(tx)}>
           <Icon name="trash" />
         </button>
+      </div>
+    </div>
+  );
+}
+
+function SavingsProgress({ total, goal }: { total: number; goal: number }) {
+  const pct = Math.min(100, Math.max(0, (total / goal) * 100));
+  const display = Math.round(pct);
+
+  return (
+    <div className="savings-card">
+      <div className="savings-labels">
+        <span className="savings-title">savings goal 🎀</span>
+        <span className="savings-pct">{display}%</span>
+      </div>
+      <div className="savings-bar-wrap">
+        <div className="savings-bar-fill" style={{ width: `${pct}%` }}>
+          <img
+            src={headImg}
+            alt=""
+            aria-hidden="true"
+            className="savings-head"
+          />
+        </div>
+      </div>
+      <div className="savings-amounts">
+        <span className="savings-cur">{fmtMoney(Math.max(0, total))}</span>
+        <span className="savings-goal">of {fmtMoney(goal)}</span>
+      </div>
+    </div>
+  );
+}
+
+function PaydayHeart({ days }: { days: number }) {
+  const isToday = days === 0;
+  const isTomorrow = days === 1;
+
+  const topLabel = isToday ? "it's" : isTomorrow ? "only" : `${days}`;
+  const midLabel = isToday ? "payday!" : isTomorrow ? "1 day" : days === 1 ? "day" : "days";
+  const botLabel = isToday ? "🎀" : isTomorrow ? "to go!" : "til payday";
+
+  return (
+    <div className="payday-heart-wrap" aria-label={`${days} days until payday`}>
+      {/* floating sparkles */}
+      <span className="ph-spark s1">✦</span>
+      <span className="ph-spark s2">✦</span>
+      <span className="ph-spark s3">·</span>
+
+      <div className="payday-heart">
+        <div className="ph-inner">
+          <span className="ph-top">{topLabel}</span>
+          <span className="ph-mid">{midLabel}</span>
+          <span className="ph-bot">{botLabel}</span>
+        </div>
       </div>
     </div>
   );
