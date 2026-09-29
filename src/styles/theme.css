@@ -1,0 +1,93 @@
+/* ==========================================================================
+   Pretty Pennies — coquette theme
+   Buttery yellows and soft whites only. Rounded, ribbony, gentle. No gradients.
+   ========================================================================== */
+
+:root {
+  /* base palette — yellows + whites */
+  --yellow-700: #c99700;
+  --yellow-600: #e0a800;
+  --yellow-500: #f6c445;
+  --yellow-400: #f7d066;
+  --yellow-300: #f7d774;
+  --yellow-200: #fbe29a;
+  --yellow-100: #fdebb0;
+  --yellow-50: #fff8e1;
+  --cream: #fffdf5;
+
+  --white: #ffffff;
+
+  /* semantic */
+  --bg: #fffdf5;
+  --surface: #ffffff;
+  --surface-solid: #ffffff;
+  --surface-soft: #fff8e1;
+  --ink: #6b5518;
+  --ink-soft: #8a7433;
+  --muted: #b9a866;
+  --line: #f3e6b8;
+  --line-strong: #ecd88f;
+
+  /* keep money in/out readable but within the warm family */
+  --income: #9a8300;
+  --income-bg: #fbeeb0;
+  --expense: #c98a00;
+  --expense-bg: #fdf0cf;
+  --transfer: #b59410;
+  --transfer-bg: #fdf3d4;
+
+  --accent: var(--yellow-500);
+  --accent-warm: var(--yellow-500);
+
+  --radius-lg: 22px;
+  --radius: 16px;
+  --radius-sm: 11px;
+
+  --shadow-soft: 0 10px 28px -18px rgba(201, 151, 0, 0.55);
+  --shadow-card: 0 6px 20px -14px rgba(201, 151, 0, 0.45);
+  --shadow-pop: 0 24px 56px -24px rgba(201, 151, 0, 0.5);
+
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-body: "Quicksand", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; }
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--ink);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* a faint bow-dot texture layer behind everything */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(rgba(246, 196, 69, 0.14) 1.5px, transparent 1.6px);
+  background-size: 26px 26px;
+  z-index: 0;
+}
+
+button, input, select, textarea { font-family: inherit; }
+button { cursor: pointer; }
+a { color: inherit; }
+
+.font-display { font-family: var(--font-display); }
+
+/* scrollbars, soft */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--yellow-300) transparent;
+}
+*::-webkit-scrollbar { width: 9px; height: 9px; }
+*::-webkit-scrollbar-thumb { background: var(--yellow-300); border-radius: 100px; }
+*::-webkit-scrollbar-track { background: transparent; }
+
+::selection { background: var(--yellow-300); color: var(--yellow-700); }
